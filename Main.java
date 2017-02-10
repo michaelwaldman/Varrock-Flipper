@@ -20,15 +20,16 @@ import org.dreambot.api.wrappers.interactive.NPC;
 import org.dreambot.api.wrappers.items.GroundItem;
 import org.dreambot.api.wrappers.widgets.message.Message;
 import org.dreambot.api.utilities.Timer;
-@ScriptManifest(author = "Xaklon", category = Category.MISC, description = "Buys, sells, profit$", name = "Flippa 6.0", version = 4.0)
+@ScriptManifest(author = "Xaklon", category = Category.MISC, description = "Buys, sells, profit$", name = "tester", version = 4.0)
 public class Main extends AbstractScript {
-	int GESellPrice = 8750;
+	public int GESellPrice = 8750;
 	int current;
 	Area zaffArea;
 	int State = 0;
 	NPC Zaff;
 	NPC GrandExchangeClerk;
-
+	
+	private Boolean startScript = false;
 	
 	int prePurchase = 0;
 	int postPurchase = 0;
@@ -39,8 +40,20 @@ public class Main extends AbstractScript {
 	GameObject bank;
 	GameObject door;
 	
+	
+	
+	public boolean getStartScript(){
+		return startScript;
+	}
+	public void setStartScript(Boolean startScript){
+		this.startScript = startScript;
+	}
+	
 	@Override
 	public void onStart() {
+		log("Script started");
+		StaffGUI gui = new StaffGUI(this);
+		gui.setVisible(true);
 		State = 6;
 	 zaffArea = new Area(3204, 3437, 3201, 3432);
 	 t = new Timer();
@@ -63,7 +76,7 @@ public class Main extends AbstractScript {
 		3200, 3431 SW Corner
 	 * */
 	public int onLoop() {
-
+		if(getStartScript()){
 		if (State == 0) {
 			buy();
 			sleep(1000, 2000);
@@ -100,8 +113,8 @@ public class Main extends AbstractScript {
 			ZaffWalk();
 			
 		}
-		/*
-		*/
+		
+		}
 		return 0;
 
 	}
@@ -169,7 +182,7 @@ public class Main extends AbstractScript {
 				GrandExchangeClerk.interact("Exchange");
 				sleepUntil(()->!getGrandExchange().isOpen(),3000);
 				getGrandExchange().sellItem("Battlestaff", getInventory().count(1392), GESellPrice);
-				sleepUntil(()->getGrandExchange().sellItem("Battlestaff", getInventory().count(1392), 8750),3000);
+				sleepUntil(()->getGrandExchange().sellItem("Battlestaff", getInventory().count(1392), GESellPrice),3000);
 				getGrandExchange().collect();
 				sleepUntil(()->getGrandExchange().collect(),3000);
 				getGrandExchange().close();
@@ -183,7 +196,7 @@ public class Main extends AbstractScript {
 
 	public void buy() {
 		Zaff = getNpcs().closest("Zaff");
-		if (Zaff.isOnScreen()) {
+		if (Zaff.isOnScreen() && Zaff != null) {
 			getCamera().rotateToPitch(Calculations.random(32, 45));
 			sleep(2000, 3400);
 			getCamera().mouseRotateToEntity(Zaff);
@@ -230,13 +243,14 @@ public class Main extends AbstractScript {
 		}
 	}
 	public void onPaint(Graphics g){
+		if(getStartScript()){
 		Color myColor = new Color(0, 0, 0, 125);
 		  Color greenColor = new Color(0, 239, 80, 150);
 
 	       Font helvetica = new Font("Helvetica", Font.BOLD, 18);
 			g.setColor(myColor);
 			g.setFont(helvetica);
-			g.fillRect(50, 45, 180, 130);
+			g.fillRect(50, 45, 200, 150);
 			
 			g.setFont(helvetica); 
 			g.setColor(Color.WHITE);
@@ -247,7 +261,9 @@ public class Main extends AbstractScript {
 		    g.drawString("Profit: "+(totalStaffs*1400), 50, 120);
 		    g.drawString("Staffs/hr: "+(t.getHourlyRate(totalStaffs)), 50, 150);
 		    g.drawString("Time ran: "+(t.formatTime()), 50, 175);
+		    g.drawString("Sell Price: "+ GESellPrice , 50, 195);
 
+		}
 	}
 
 	public void bank(){
